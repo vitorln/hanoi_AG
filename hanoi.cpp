@@ -262,7 +262,7 @@ int main()
     int num_disks = 5;
     int population_size = 2000;
     int num_generations = 1000;
-    int num_mov = (pow(2,num_disks) -1) + 50;
+    int num_mov = (pow(2,num_disks) -1) * 3;
     int population_fitness[population_size];
     moviments *the_best;
     the_best = new moviments[num_mov];

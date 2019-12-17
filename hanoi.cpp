@@ -99,12 +99,12 @@ int fitness(int num_disks, moviments *individuo_index, int num_mov)
                 break;
         }   
     }
-    int sum_t2 = 0;
+    int sum_pow_t2 = 0;
     for(int i = 0; i < size_towers[2]; i++)
     {
-        sum_t2 += state[2][i];
+        sum_pow_t2 += pow(3, state[2][i]);
     }
-    fitness_value += sum_t2 * 15;
+    fitness_value += sum_pow_t2 * 15;
     fitness_value -= size_towers[0] * 15;
     fitness_value -= size_towers[1] * 15;
 
@@ -141,7 +141,7 @@ int roleta(int population_size, int fitness[])
     return -1; 
 }
 
-void crossOver(int population_size, int fitness[], int num_mov)
+void crossover(int population_size, int fitness[], int num_mov)
 {
     moviments **new_generation;
     new_generation = new moviments*[population_size];
@@ -154,8 +154,9 @@ void crossOver(int population_size, int fitness[], int num_mov)
     {
         int father1 = roleta(population_size, fitness);
         int father2 = roleta(population_size, fitness);
+        int corte = rand() % num_mov;
         for(int j=0; j<num_mov; j++){
-            if(j<=num_mov/2)
+            if(j<=corte)
             {
                 new_generation[i][j] = population[father1][j];
                 new_generation[i*2][j] = population[father2][j];
@@ -165,7 +166,6 @@ void crossOver(int population_size, int fitness[], int num_mov)
                 new_generation[i*2][j] = population[father1][j];
                 new_generation[i][j] = population[father2][j];
             }
-            
         }
     }
     population = new_generation;
@@ -266,7 +266,10 @@ int main()
     int population_fitness[population_size];
     moviments *the_best;
     the_best = new moviments[num_mov];
+    moviments *the_best_aux;
+    the_best_aux = new moviments[num_mov];
     double mutation_rate = 0.2;
+    int cont_generation = 0;
 
 
     population = new moviments*[population_size];
@@ -277,17 +280,30 @@ int main()
     generatePopulation(population_size, num_mov);
 
     the_best = population[0];
-    while(num_generations > 0)
+    while(num_generations > cont_generation)
     {
         for(int i = 0; i < population_size; i++)
         {
             population_fitness[i] = fitness(num_disks, population[i], num_mov);
         }
-        the_best = findTheBest(population_size, population_fitness, the_best, num_mov, num_disks);
-        crossOver(population_size, population_fitness, num_mov);
+        the_best_aux = findTheBest(population_size, population_fitness, the_best, num_mov, num_disks);
+        int fitness_best = fitness(num_disks, the_best, num_mov);
+        int fitness_aux = fitness(num_disks, the_best_aux, num_mov);
+        if(fitness_best == fitness_aux)
+        {
+            cont_generation++;
+            
+        }
+        else 
+        {
+            cont_generation = 0;
+        }
+        the_best = the_best_aux;
+
+        crossover(population_size, population_fitness, num_mov);
         mutate(population_size, num_mov, mutation_rate);
-        num_generations--;
     }
+    cout << "fitness: |" << fitness(num_disks, the_best, num_mov) << endl;
     printTowers(the_best, num_disks, num_mov);
     //printPopulation(population_size, num_mov);
 }

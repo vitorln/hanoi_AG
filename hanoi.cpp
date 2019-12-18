@@ -265,22 +265,51 @@ void printTowers(moviments the_best[], int num_disks, int num_mov)
         }   
         
     }
-    for(int i=0; i<3; i++){//towers
-        cout<<"torre "<<i<<": |";
+    /*for(int i=0; i<3; i++){//towers
+        cout<<"tower "<<i<<": |";
         for(int j=0; j<size_towers[i]; j++){//discs
             cout<<state[i][j]<<" ";
         }
         cout<<endl;
+    }*/
+    int i = 0;
+
+    for(int j=0; j<num_disks; j++){//discs
+        if(state[i][j]!=0)
+        {
+            cout<<" "<<state[i][j]<<"   ";
+        }else{
+            cout<<" |   ";
+        }
+        if(state[i+1][j]!=0)
+        {
+            cout<<" "<<state[i+1][j]<<"   ";
+        }else{
+            cout<<" |   ";
+        }
+        if(state[i+2][j]!=0)
+        {
+            cout<<" "<<state[i+2][j]<<"   "<<endl;
+        }else{
+            cout<<" |   "<<endl;
+        }
     }
+    cout<<" |    |    | "<<endl;
+    cout<<"___  ___  ___"<<endl;
 }
 
 int main()
 {
-    srand (time(NULL));
-    int num_disks = 6;
+    //srand (time(NULL));
+    int num_disks = 4;
     int population_size = 2000;
-    int num_generations = 1000;
-    int num_mov = (pow(2,num_disks) -1) * 3;
+    int num_generations = 1000; 
+    
+    int num_mov;
+    //num_mov = (pow(2,num_disks) -1) * 3;
+    num_mov = (pow(2,num_disks)-1) + ((2/3)*(pow(2,num_disks)-1)) + (pow(2,num_disks)-1)*3;
+    cout<<num_mov<<endl;
+
     int population_fitness[population_size];
     moviments *the_best;
     the_best = new moviments[num_mov];
@@ -288,7 +317,6 @@ int main()
     the_best_aux = new moviments[num_mov];
     double mutation_rate = 0.2;
     int cont_generation = 0;
-
 
     population = new moviments*[population_size];
     for(int i = 0; i < population_size; i++)

@@ -150,7 +150,7 @@ void crossover(int population_size, int fitness[], int num_mov)
         new_generation[i] = new moviments[num_mov];
     }
     
-    for(int i=0; i<population_size/2; i++)
+    for(int i=0; i<population_size; i+=2)
     {
         int father1 = roleta(population_size, fitness);
         int father2 = roleta(population_size, fitness);
@@ -159,16 +159,29 @@ void crossover(int population_size, int fitness[], int num_mov)
             if(j<=corte)
             {
                 new_generation[i][j] = population[father1][j];
-                new_generation[i*2][j] = population[father2][j];
+                new_generation[i+1][j] = population[father2][j];
             }
             else
             {
-                new_generation[i*2][j] = population[father1][j];
+                new_generation[i+1][j] = population[father1][j];
                 new_generation[i][j] = population[father2][j];
             }
         }
     }
-    population = new_generation;
+    for(int i = 0; i < population_size; i++)
+    {
+        for(int j = 0; j < num_mov; j++)
+        {
+            population[i][j].torre_destino = new_generation[i][j].torre_destino;
+            population[i][j].torre_origem = new_generation[i][j].torre_origem;
+        }
+        delete[] new_generation[i];
+    }
+    delete[] new_generation;
+    
+    // population = new_generation;
+
+    
 }
 
 void mutate(int population_size, int num_mov, double rate_mutate)
@@ -200,7 +213,12 @@ moviments *findTheBest(int population_size, int fit[], moviments the_best[], int
         if(fit[i] > the_best_fitness)
         {
             the_best_fitness = fit[i];
-            the_best = population[i];
+            //the_best = population[i];
+            for(int j = 0; j < num_mov; j++)
+            {
+                the_best[j].torre_destino = population[i][j].torre_destino;
+                the_best[j].torre_origem = population[i][j].torre_origem;
+            }
         }
     }
     return the_best;
@@ -259,7 +277,7 @@ void printTowers(moviments the_best[], int num_disks, int num_mov)
 int main()
 {
     srand (time(NULL));
-    int num_disks = 5;
+    int num_disks = 6;
     int population_size = 2000;
     int num_generations = 1000;
     int num_mov = (pow(2,num_disks) -1) * 3;
@@ -279,14 +297,20 @@ int main()
     }
     generatePopulation(population_size, num_mov);
 
-    the_best = population[0];
+    for(int j = 0; j < num_mov; j++)
+    {
+        the_best[j].torre_destino = population[0][j].torre_destino;
+        the_best[j].torre_origem = population[0][j].torre_origem;
+        the_best_aux[j].torre_destino = population[0][j].torre_destino;
+        the_best_aux[j].torre_origem = population[0][j].torre_origem;
+    }
     while(num_generations > cont_generation)
     {
         for(int i = 0; i < population_size; i++)
         {
             population_fitness[i] = fitness(num_disks, population[i], num_mov);
         }
-        the_best_aux = findTheBest(population_size, population_fitness, the_best, num_mov, num_disks);
+        the_best_aux = findTheBest(population_size, population_fitness, the_best_aux, num_mov, num_disks);
         int fitness_best = fitness(num_disks, the_best, num_mov);
         int fitness_aux = fitness(num_disks, the_best_aux, num_mov);
         if(fitness_best == fitness_aux)
@@ -298,10 +322,19 @@ int main()
         {
             cont_generation = 0;
         }
-        the_best = the_best_aux;
+        for(int j = 0; j < num_mov; j++)
+        {
+            the_best[j].torre_destino = the_best_aux[j].torre_destino;
+            the_best[j].torre_origem = the_best_aux[j].torre_origem;
+        }
 
         crossover(population_size, population_fitness, num_mov);
         mutate(population_size, num_mov, mutation_rate);
+        // cout << cont_generation << endl;
+        // cout << "fitness: |" << fitness(num_disks, the_best, num_mov) << endl;
+        // printTowers(the_best, num_disks, num_mov);
+        // int x;
+        // cin >> x;
     }
     cout << "fitness: |" << fitness(num_disks, the_best, num_mov) << endl;
     printTowers(the_best, num_disks, num_mov);

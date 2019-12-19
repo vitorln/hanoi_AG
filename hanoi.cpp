@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <vector>
 #include <cmath>
+#include <time.h>
 
 using namespace std;
 
@@ -93,7 +94,7 @@ int fitness(int num_disks, moviments *individuo_index, int num_mov)
         state[destination_tower][size_towers[destination_tower]] = disk_getted;
         size_towers[destination_tower] += 1;
 
-        if(size_towers[2] == num_disks)
+        if(size_towers[2] == num_disks && state[2][0] == num_disks)
         {
             fitness_value += 10000;
                 break;
@@ -141,7 +142,7 @@ int roleta(int population_size, int fitness[])
     return -1; 
 }
 
-void crossover(int population_size, int fitness[], int num_mov)
+void crossover(int population_size, int fitness[], int num_mov, moviments ** the_elite, int n_elite)
 {
     moviments **new_generation;
     new_generation = new moviments*[population_size];
@@ -168,6 +169,7 @@ void crossover(int population_size, int fitness[], int num_mov)
             }
         }
     }
+    
     for(int i = 0; i < population_size; i++)
     {
         for(int j = 0; j < num_mov; j++)
@@ -179,8 +181,18 @@ void crossover(int population_size, int fitness[], int num_mov)
     }
     delete[] new_generation;
     
-    // population = new_generation;
-
+    for(int i = 0; i < n_elite; i++)//killing the 20 people and insert the elite mannnn |m|__(+_+)__|m|
+    {
+        for(int j = 0; j < num_mov; j++)
+        {
+            population[i][j].torre_destino = the_elite[i][j].torre_destino;
+            population[i][j].torre_origem = the_elite[i][j].torre_origem;
+        }
+        //cout<<"elite:"<<i<<endl;
+        delete[] the_elite[i];
+    }
+    delete[] the_elite;
+    //getchar();
     
 }
 
@@ -224,24 +236,52 @@ moviments *findTheBest(int population_size, int fit[], moviments the_best[], int
     return the_best;
 }
 
-moviments * findElite(moviments ** the_elite, int n, int population_size, int fit[], moviments the_best[], int num_mov, int num_disks)
+moviments * findElite(moviments ** the_elite, int n_elite, int population_size, int fit[], moviments the_best[], int num_mov, int num_disks)
 {
-    
-    int the_best_fitness = fitness(num_disks, the_best, num_mov);
+    /*for(int k=0; k<20; k++)//INICIALIZE ELITE
+    {
         for(int i=0; i<population_size; i++)
         {
-            if(fit[i] > the_best_fitness)
-            {
-                the_best_fitness = fit[i];
             for(int j = 0; j < num_mov; j++)
             {
-                the_best[j].torre_destino = population[i][j].torre_destino;
-                the_best[j].torre_origem = population[i][j].torre_origem;
+                the_elite[k][j].torre_destino = population[i][j].torre_destino;
+                the_elite[k][j].torre_origem = population[i][j].torre_origem;
             }
         }
-    }    
+    }*/
+   /* for(int k=0; k<20; k++)
+    {
+        int fitness_elite = fitness(num_disks, the_elite[k], num_mov);
+        cout<<k<<" - THE KING IS HERE BABY:"<<fitness_elite<<endl;
+    }*/
+    for(int i=n_elite+1; i<population_size; i++)
+    {
+        for(int k=0; k<n_elite; k++)
+        {
+            int fitness_elite = fitness(num_disks, the_elite[k], num_mov);
+            if(fit[i] > fitness_elite)
+            {
+                for(int j = 0; j < num_mov; j++)
+                {
+                    the_elite[k][j].torre_destino = population[i][j].torre_destino;
+                    the_elite[k][j].torre_origem = population[i][j].torre_origem;
+                }
+            }
+        }
+    }
+    /*int the_best_fitness = fitness(num_disks, the_best, num_mov);
+    for(int k=0; k<20; k++)
+    {
+        int fitness_elite = fitness(num_disks, the_elite[k], num_mov);
+        if(the_best_fitness = fitness_elite)
+        {
+                cout<<k<<" - THE KING IS HERE BABY"<<endl;
+        }
+    }*/
+
     return *the_elite;
 }
+
 
 void printTowers(moviments the_best[], int num_disks, int num_mov)
 {
@@ -293,7 +333,7 @@ void printTowers(moviments the_best[], int num_disks, int num_mov)
     }*/
     int i = 0;
 
-    for(int j=0; j<num_disks; j++){//discs
+    for(int j=num_disks - 1; j >= 0; j--){//discs
         if(state[i][j]!=0)
         {
             cout<<" "<<state[i][j]<<"   ";
@@ -313,20 +353,21 @@ void printTowers(moviments the_best[], int num_disks, int num_mov)
             cout<<" |   "<<endl;
         }
     }
+
     cout<<" |    |    | "<<endl;
     cout<<"___  ___  ___"<<endl;
 }
-
 int main()
 {
-    //srand (time(NULL));
-    int num_disks = 4;
+    clock_t tStart = clock();
+    int num_disks = 5;
     int population_size = 2000;
     int num_generations = 1000; 
     
     int num_mov;
     //num_mov = (pow(2,num_disks) -1) * 3;
-    num_mov = (pow(2,num_disks)-1) + ((2/3)*(pow(2,num_disks)-1)) + (pow(2,num_disks)-1)*3;
+    //num_mov = (pow(2,num_disks)-1) + ((2/3)*(pow(2,num_disks)-1)) + (pow(2,num_disks)-1)*3;
+    num_mov = (pow(2,num_disks) -1) * 5;
     cout<<num_mov<<endl;
 
     int population_fitness[population_size];
@@ -352,17 +393,10 @@ int main()
         the_best_aux[j].torre_origem = population[0][j].torre_origem;
     }
 
-    moviments *rabble[20];//plebe
-    for(int i=0; i<20; i++){
-        rabble[i] = new moviments[num_mov];
-        for(int j=0; j<num_mov; j++){
-            rabble[i][j].torre_destino = population[0][j].torre_destino;
-            rabble[i][j].torre_origem = population[0][j].torre_origem;
-        } 
-    }
-   
-    moviments *elite[20];//plebe
-    for(int i=0; i<20; i++){
+
+    int n_elite = 30;
+    moviments *elite[n_elite];//plebe
+    for(int i=0; i<n_elite; i++){
         elite[i] = new moviments[num_mov];
         for(int j=0; j<num_mov; j++){
             elite[i][j].torre_destino = population[0][j].torre_destino;
@@ -378,7 +412,6 @@ int main()
         {
             population_fitness[i] = fitness(num_disks, population[i], num_mov);
         }
-        *elite = findElite(elite, 20, population_size, population_fitness, the_best_aux, num_mov, num_disks);
         the_best_aux = findTheBest(population_size, population_fitness, the_best_aux, num_mov, num_disks);
         int fitness_best = fitness(num_disks, the_best, num_mov);
         int fitness_aux = fitness(num_disks, the_best_aux, num_mov);
@@ -395,12 +428,13 @@ int main()
             the_best[j].torre_destino = the_best_aux[j].torre_destino;
             the_best[j].torre_origem = the_best_aux[j].torre_origem;
         }
-
-        crossover(population_size, population_fitness, num_mov);
+        *elite = findElite(elite, n_elite, population_size, population_fitness, the_best_aux, num_mov, num_disks);
+        crossover(population_size, population_fitness, num_mov, elite, n_elite);
         mutate(population_size, num_mov, mutation_rate);
 
     }
     cout << "fitness: |" << fitness(num_disks, the_best, num_mov) << endl;
     printTowers(the_best, num_disks, num_mov);
-    //printPopulation(population_size, num_mov);
+    printf("Time taken: %.2fs\n", (double)(clock() - tStart)/CLOCKS_PER_SEC);
+        //printPopulation(population_size, num_mov);
 }

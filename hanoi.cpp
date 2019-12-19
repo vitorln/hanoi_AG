@@ -224,6 +224,25 @@ moviments *findTheBest(int population_size, int fit[], moviments the_best[], int
     return the_best;
 }
 
+moviments * findElite(moviments ** the_elite, int n, int population_size, int fit[], moviments the_best[], int num_mov, int num_disks)
+{
+    
+    int the_best_fitness = fitness(num_disks, the_best, num_mov);
+        for(int i=0; i<population_size; i++)
+        {
+            if(fit[i] > the_best_fitness)
+            {
+                the_best_fitness = fit[i];
+            for(int j = 0; j < num_mov; j++)
+            {
+                the_best[j].torre_destino = population[i][j].torre_destino;
+                the_best[j].torre_origem = population[i][j].torre_origem;
+            }
+        }
+    }    
+    return *the_elite;
+}
+
 void printTowers(moviments the_best[], int num_disks, int num_mov)
 {
     int size_towers[3];
@@ -332,19 +351,40 @@ int main()
         the_best_aux[j].torre_destino = population[0][j].torre_destino;
         the_best_aux[j].torre_origem = population[0][j].torre_origem;
     }
+
+    moviments *rabble[20];//plebe
+    for(int i=0; i<20; i++){
+        rabble[i] = new moviments[num_mov];
+        for(int j=0; j<num_mov; j++){
+            rabble[i][j].torre_destino = population[0][j].torre_destino;
+            rabble[i][j].torre_origem = population[0][j].torre_origem;
+        } 
+    }
+   
+    moviments *elite[20];//plebe
+    for(int i=0; i<20; i++){
+        elite[i] = new moviments[num_mov];
+        for(int j=0; j<num_mov; j++){
+            elite[i][j].torre_destino = population[0][j].torre_destino;
+            elite[i][j].torre_origem = population[0][j].torre_origem;
+        } 
+    }
+
+
+
     while(num_generations > cont_generation)
     {
         for(int i = 0; i < population_size; i++)
         {
             population_fitness[i] = fitness(num_disks, population[i], num_mov);
         }
+        *elite = findElite(elite, 20, population_size, population_fitness, the_best_aux, num_mov, num_disks);
         the_best_aux = findTheBest(population_size, population_fitness, the_best_aux, num_mov, num_disks);
         int fitness_best = fitness(num_disks, the_best, num_mov);
         int fitness_aux = fitness(num_disks, the_best_aux, num_mov);
         if(fitness_best == fitness_aux)
         {
             cont_generation++;
-            
         }
         else 
         {
@@ -358,11 +398,7 @@ int main()
 
         crossover(population_size, population_fitness, num_mov);
         mutate(population_size, num_mov, mutation_rate);
-        // cout << cont_generation << endl;
-        // cout << "fitness: |" << fitness(num_disks, the_best, num_mov) << endl;
-        // printTowers(the_best, num_disks, num_mov);
-        // int x;
-        // cin >> x;
+
     }
     cout << "fitness: |" << fitness(num_disks, the_best, num_mov) << endl;
     printTowers(the_best, num_disks, num_mov);

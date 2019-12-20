@@ -1,3 +1,4 @@
+///Autores: Emerson Hoffmann, Leonardo Caracho, Victor Pozzan e Vitor Lisboa
 #include <iostream>
 #include <stdio.h>
 #include <cstdlib>
@@ -181,18 +182,16 @@ void crossover(int population_size, int fitness[], int num_mov, moviments ** the
     }
     delete[] new_generation;
     
-    for(int i = 0; i < n_elite; i++)//killing the 20 people and insert the elite mannnn |m|__(+_+)__|m|
+    for(int i = 0; i < n_elite; i++)//killing the n people and insert the elite mannnn |m|__(+_+)__|m|
     {
         for(int j = 0; j < num_mov; j++)
         {
             population[i][j].torre_destino = the_elite[i][j].torre_destino;
             population[i][j].torre_origem = the_elite[i][j].torre_origem;
         }
-        //cout<<"elite:"<<i<<endl;
         delete[] the_elite[i];
     }
     delete[] the_elite;
-    //getchar();
     
 }
 
@@ -225,7 +224,6 @@ moviments *findTheBest(int population_size, int fit[], moviments the_best[], int
         if(fit[i] > the_best_fitness)
         {
             the_best_fitness = fit[i];
-            //the_best = population[i];
             for(int j = 0; j < num_mov; j++)
             {
                 the_best[j].torre_destino = population[i][j].torre_destino;
@@ -238,22 +236,6 @@ moviments *findTheBest(int population_size, int fit[], moviments the_best[], int
 
 moviments * findElite(moviments ** the_elite, int n_elite, int population_size, int fit[], moviments the_best[], int num_mov, int num_disks)
 {
-    /*for(int k=0; k<20; k++)//INICIALIZE ELITE
-    {
-        for(int i=0; i<population_size; i++)
-        {
-            for(int j = 0; j < num_mov; j++)
-            {
-                the_elite[k][j].torre_destino = population[i][j].torre_destino;
-                the_elite[k][j].torre_origem = population[i][j].torre_origem;
-            }
-        }
-    }*/
-   /* for(int k=0; k<20; k++)
-    {
-        int fitness_elite = fitness(num_disks, the_elite[k], num_mov);
-        cout<<k<<" - THE KING IS HERE BABY:"<<fitness_elite<<endl;
-    }*/
     for(int i=n_elite+1; i<population_size; i++)
     {
         for(int k=0; k<n_elite; k++)
@@ -269,15 +251,6 @@ moviments * findElite(moviments ** the_elite, int n_elite, int population_size, 
             }
         }
     }
-    /*int the_best_fitness = fitness(num_disks, the_best, num_mov);
-    for(int k=0; k<20; k++)
-    {
-        int fitness_elite = fitness(num_disks, the_elite[k], num_mov);
-        if(the_best_fitness = fitness_elite)
-        {
-                cout<<k<<" - THE KING IS HERE BABY"<<endl;
-        }
-    }*/
 
     return *the_elite;
 }
@@ -318,19 +291,12 @@ void printTowers(moviments the_best[], int num_disks, int num_mov)
         state[destination_tower][size_towers[destination_tower]] = disk_getted;
         size_towers[destination_tower] += 1;
 
-        if(size_towers[2] == num_disks)
+        if(size_towers[2] == num_disks && state[2][0] == num_disks)
         {
             break;
         }   
         
     }
-    /*for(int i=0; i<3; i++){//towers
-        cout<<"tower "<<i<<": |";
-        for(int j=0; j<size_towers[i]; j++){//discs
-            cout<<state[i][j]<<" ";
-        }
-        cout<<endl;
-    }*/
     int i = 0;
 
     for(int j=num_disks - 1; j >= 0; j--){//discs
@@ -369,7 +335,7 @@ int main()
     //num_mov = (pow(2,num_disks) -1) * 3;
     //num_mov = (pow(2,num_disks)-1) + ((2/3)*(pow(2,num_disks)-1)) + (pow(2,num_disks)-1)*3;
     num_mov = (pow(2,num_disks) -1) * 5;
-    cout<<num_mov<<endl;
+
 
     int population_fitness[population_size];
     moviments *the_best;
@@ -378,7 +344,13 @@ int main()
     the_best_aux = new moviments[num_mov];
     double mutation_rate = 0.2;
     int cont_generation = 0;
-
+    
+    cout<<"Population: "<<population_size<<endl;
+    cout<<"Number Generation: "<<num_generations<<endl;
+    cout<<"Genes: "<<num_mov<<endl;
+    cout<<"Elite: 40"<<endl;    
+    cout<<"Mutatio Rate: 0.2"<<endl;
+    
     population = new moviments*[population_size];
     for(int i = 0; i < population_size; i++)
     {
@@ -395,8 +367,8 @@ int main()
     }
 
 
-    int n_elite = 30;
-    moviments *elite[n_elite];//plebe
+    int n_elite = 40;
+    moviments *elite[n_elite];
     for(int i=0; i<n_elite; i++){
         elite[i] = new moviments[num_mov];
         for(int j=0; j<num_mov; j++){
@@ -437,5 +409,4 @@ int main()
     cout << "fitness: " << fitness(num_disks, the_best, num_mov) << endl;
     printTowers(the_best, num_disks, num_mov);
     printf("Time taken: %.2fs\n", (double)(clock() - tStart)/CLOCKS_PER_SEC);
-        //printPopulation(population_size, num_mov);
 }

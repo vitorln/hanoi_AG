@@ -359,8 +359,9 @@ void printTowers(moviments the_best[], int num_disks, int num_mov)
 }
 int main()
 {
-    clock_t tStart = clock();
     int num_disks = 5;
+    cout<<"Coloque o numero de discos: ";
+    cin>>num_disks;
     int population_size = 2000;
     int num_generations = 1000; 
     
@@ -405,7 +406,7 @@ int main()
     }
 
 
-
+    clock_t tStart = clock();
     while(num_generations > cont_generation)
     {
         for(int i = 0; i < population_size; i++)
@@ -433,7 +434,7 @@ int main()
         mutate(population_size, num_mov, mutation_rate);
 
     }
-    cout << "fitness: |" << fitness(num_disks, the_best, num_mov) << endl;
+    cout << "fitness: " << fitness(num_disks, the_best, num_mov) << endl;
     printTowers(the_best, num_disks, num_mov);
     printf("Time taken: %.2fs\n", (double)(clock() - tStart)/CLOCKS_PER_SEC);
         //printPopulation(population_size, num_mov);
